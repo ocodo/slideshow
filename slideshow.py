@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright (C) 2023 by Jasonm23 / ocodo
 # Licenced under GPL v3 see LICENSE
