@@ -36,6 +36,16 @@ def osd(message):
     status_label.opacity = 255
     pyglet.clock.schedule_once(hide_status_message, status_label_hide_delay)
 
+def osd_small(message):
+    pyglet.clock.unschedule(hide_small_status_message)
+    status_label_small.text = message
+    status_label_small.x = window.width - 10
+    status_label_small.opacity = 255
+    pyglet.clock.schedule_once(hide_small_status_message, status_label_hide_delay)
+
+def hide_small_status_message(dt):
+    status_label_small.opacity = 0
+
 def hide_status_message(dt):
     status_label.opacity = 0
 
@@ -73,7 +83,7 @@ def get_random_image():
     if len(image_paths) > 0:
         image_filename = random.choice(image_paths)
         image_index = image_paths.index(image_filename)
-        image_paths.remove(image_filename)
+        image_paths.pop(image_index)
         image_random_viewed.append(image_filename)
         img = load_image(image_filename)
         return img
@@ -85,7 +95,7 @@ def get_random_image():
 def previous_image():
     global random_image, image_index, image_filename, img
     if random_image:
-        return get_random_image()
+        return
     else:
         if image_index > 0:
             image_index -= 1
@@ -228,6 +238,7 @@ def on_draw():
     window.clear()
     sprite.draw()
     status_label.draw()
+    status_label_small.draw()
 
 @window.event
 def on_key_release(symbol, modifiers):
@@ -360,9 +371,20 @@ if __name__ == '__main__':
       status_label = pyglet.text.Label(
           '',
           font_name='Arial',
-          font_size=18,
+          font_size=14,
           x=10,
           y=10,
+          color=(255, 255, 255, 255)
+      )
+
+      status_label_small = pyglet.text.Label(
+          '',
+          font_name='Courier New',
+          font_size=14,
+          x=10,
+          y=10,
+          anchor_x='right',
+          anchor_y='bottom',
           color=(255, 255, 255, 255)
       )
 
