@@ -73,12 +73,13 @@ def get_random_image():
     if len(image_paths) > 0:
         image_filename = random.choice(image_paths)
         image_index = image_paths.index(image_filename)
-        image_paths.pop(image_index)
+        image_paths.remove(image_filename)
         image_random_viewed.append(image_filename)
         img = load_image(image_filename)
         return img
     else:
-        image_paths = image_random_viewed.copy()
+        image_paths = saved_image_paths.copy()
+        image_random_viewed = []
         return get_random_image()
 
 def previous_image():
