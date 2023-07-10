@@ -94,6 +94,22 @@ def get_random_image():
         image_random_viewed = []
         return get_random_image()
 
+def nav_next():
+    if not paused:
+        pause()
+        update_image(0)
+        resume()
+    else:
+        update_image(0)
+
+def nav_prevous():
+    if not paused:
+        pause()
+        previous_image()
+        resume()
+    else:
+        previous_image()
+
 def previous_image():
     global random_image, image_index, image_filename, img
     if random_image:
@@ -290,14 +306,10 @@ def on_key_release(symbol, modifiers):
         pyperclip.copy(image_filename)
 
     elif key.LEFT == symbol:
-        pause()
-        previous_image()
-        resume()
+        nav_prevous()
 
     elif key.RIGHT == symbol:
-        pause()
-        update_image(0)
-        resume()
+        nav_next()
 
     elif key.BRACKETLEFT == symbol:
         update_interval_seconds = max(update_interval_seconds - 0.5, 0.5)
@@ -316,13 +328,10 @@ def on_mouse_release(x, y, button, modifiers):
     width = window.width
     if button == pyglet.window.mouse.LEFT:
         if x < width * 0.5:
-            pause()
-            previous_image()
-            resume()
+            nav_prevous()
         elif x > width * 0.5:
-            pause()
-            update_image(0)
-            resume()
+            nav_next()
+
     elif button == pyglet.window.mouse.RIGHT:
         if x < width * 0.3:
             toggle_random_image()
