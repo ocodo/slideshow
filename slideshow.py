@@ -67,7 +67,10 @@ def update_zoom(dt):
         sprite.scale -= dt * zoom_speed
 
 def load_image(image):
-    image = pyglet.image.load(image)
+    if image.endswith('gif'):
+        image = pyglet.image.load_animation(image)
+    else:
+        image = pyglet.image.load(image)
     return image
 
 def setup_sprite():
@@ -264,12 +267,7 @@ def window_max_size():
     window.width = width
     window.height = height
 
-@window.event
-def on_draw():
-    window.clear()
-    sprite.draw()
-    status_label.draw()
-    status_label_small.draw()
+def progress_bar_draw():
     if random_image:
         if len(image_random_viewed) > 0:
             progress_bar.width = window.width * (len(image_random_viewed) / len(saved_image_paths))
@@ -280,6 +278,14 @@ def on_draw():
 
     background_bar.draw()
     progress_bar.draw()
+
+@window.event
+def on_draw():
+    window.clear()
+    sprite.draw()
+    status_label.draw()
+    status_label_small.draw()
+    progress_bar_draw()
 
 @window.event
 def on_key_release(symbol, modifiers):
