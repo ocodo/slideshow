@@ -1,9 +1,17 @@
 # Goals
  
-- [ ] [#1](https://github.com/ocodo/slideshow/issues/1) : Ken Burns effect should select direction/speed of pan/zoom based on aspect ratio
-  - [ ] Choose pan direction along the longest axis. 
-  - [ ] Scale (zoom) 1.25 of window size.
-  - [ ] Speed scaled to aspect ratio
+- [x] [#1](https://github.com/ocodo/slideshow/issues/1) : Ken Burns effect should select direction/speed of pan/zoom based on aspect ratio
+  - [x] Choose pan direction along the longest axis. 
+  - [x] Scale (zoom) 1.25 of window size.
+  - [x] Speed scaled to aspect ratio
+
+- [ ] Modularise
+  - [x] ShadowLabel
+  - [x] Help message
+  - [ ] Progress Bar
+  - [ ] Get images
+  - [ ] Navigate images
+  - [ ] Ken Burns / Pan Zoom
   
 - - -
 

@@ -103,7 +103,7 @@ def setup_sprite():
         if is_landscape(width, height):
             sprite.y = (window.height - sprite.height) / 2
             if pan_speed_x > 0:
-                sprite.x = window.width - sprite.height
+                sprite.x = window.width - sprite.width
             else:
                 sprite.x = 0
         else:
@@ -230,7 +230,7 @@ def is_larger(width, height, window):
 
 def get_oversize_scale(window, image):
     scale = get_fit_scale(window, image)
-    return scale * 1.3
+    return scale * 1.2
 
 def get_width_height(image):
     if is_gif_animation(image):
@@ -250,9 +250,6 @@ def get_fit_scale(window, image):
         scale = window.height / image_height
 
     return scale
-
-def get_fill_scale():
-    pass
 
 def reset_clock():
     osd(f"Interval: {update_interval_seconds:.2f}")
