@@ -5,7 +5,7 @@
   - [ ] Scale (zoom) 1.25 of window size.
   - [ ] Speed scaled to aspect ratio
   
-- [ ] Animated Gifs should play
+- [x] Animated Gifs should play
 - - -
 
 ### Protocol
