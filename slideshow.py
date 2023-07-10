@@ -4,6 +4,34 @@
 # Licenced under GPL v3 see LICENSE
 # See README.md for more info
 
+help_usage = """
+Slideshow will look for valid jpg, jpeg, png & gif image filenames in stdin,
+or from a directory and display them.
+
+Usage:
+    slideshow [directory]
+or
+    slideshow < list_of_filenames_via_stdin
+
+Keyboard Controls:
+  Esc,q - quit
+  [, ] - change image delay time
+  1-9 - change image delay time (number to seconds)
+  f - maximize window (fullscreen)
+  r - random toggle
+  k - Ken Burns effect toggle
+  i - Copy image filename to clipboard
+  SPACE - pause/resume
+  left, right - move between images
+
+Mouse Controls:
+  Left click - move between images (click on left or right side)
+  Right click
+    left side (1/3) - random/ordered
+    middle (1/3) - pause/resume
+    right side (1/3) - Ken Burns effect toggle
+
+"""
 import os
 import sys
 import argparse
@@ -12,6 +40,91 @@ import pyglet
 import pyperclip
 from shadow_label import *
 from help_usage import *
+
+import pyglet
+
+class ShadowLabel:
+    def __init__(self, text, x, y, font_name='Arial', font_size=14,
+                 opacity=255, color=(255,255,255,255), shadow_color=(0,0,0,127),
+                 offset_x=2, offset_y=-2,
+                 anchor_x='center', anchor_y='center'):
+        self._text = text
+        self._x = x
+        self._y = y
+        self._offset_x = offset_x
+        self._offset_y = offset_y
+        self._opacity = opacity
+        self.main_label = pyglet.text.Label(
+            self._text,
+            font_name=font_name,
+            font_size=font_size,
+            x=self._x,
+            y=self._y,
+            anchor_x = anchor_x,
+            anchor_y = anchor_y,
+            color = color
+        )
+        self.shadow_label = pyglet.text.Label(
+            self._text,
+            font_name = font_name,
+            font_size = font_size,
+            x = self._x + self._offset_x,
+            y = self._x + self._offset_y,
+            anchor_x = anchor_x,
+            anchor_y = anchor_y,
+            color=shadow_color
+        )
+
+    def show(self, message):
+        self.text = message
+        self.opacity = 255
+
+    def hide(self):
+        self.opacity = 0
+
+    @property
+    def opacity(self):
+        return self._opacity
+
+    @opacity.setter
+    def opacity(self, value):
+        self._opacity = value
+        self.main_label.opacity = value
+        self.shadow_label.opacity = value
+
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, value):
+        self._text = value
+        self.main_label.text = value
+        self.shadow_label.text = value
+
+    @property
+    def x(self):
+        return self._x
+
+    @x.setter
+    def x(self, value):
+        self._x = value
+        self.main_label.x = value
+        self.shadow_label.x = value + self._x_offset
+
+    @property
+    def y(self):
+        return self._y
+
+    @y.setter
+    def y(self, value):
+        self._y = value
+        self.main_label.y = value
+        self.shadow_label.y = value + self._y_offset
+
+    def draw(self):
+        self.shadow_label.draw()
+        self.main_label.draw()
 
 pan_speed_slowest = 20
 pan_speed_fastest = 40
