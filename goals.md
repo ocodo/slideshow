@@ -1,6 +1,6 @@
 # Goals
 
-- [ ] [#1](/issues/1) : Ken Burns effect should select direction/speed of pan/zoom based on aspect ratio
+- [ ] [[issues/1]] : Ken Burns effect should select direction/speed of pan/zoom based on aspect ratio
   - [ ] Choose pan direction along the longest axis. 
   - [ ] Scale (zoom) 1.25 of window size.
   - [ ] Speed scaled to aspect ratio
