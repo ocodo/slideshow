@@ -226,8 +226,8 @@ def setup_sprite():
 
     else:
         sprite.scale = get_fit_scale(window, img)
-        sprite.x = (window.width - width) / 2
-        sprite.y = (window.height - height) / 2
+        sprite.x = (window.width - sprite.width) / 2
+        sprite.y = (window.height - sprite.height) / 2
 
 def get_random_image():
     global image_filename, image_index, random_image, img, image_random_viewed, image_paths
