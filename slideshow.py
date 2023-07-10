@@ -45,6 +45,9 @@ def osd_small(message):
     status_label_small.opacity = 255
     pyglet.clock.schedule_once(hide_small_status_message, status_label_hide_delay)
 
+def is_gif_animation(image):
+    return isinstance(image, pyglet.image.Animation)
+
 def hide_small_status_message(dt):
     status_label_small.opacity = 0
 
@@ -192,25 +195,31 @@ def get_image_paths_from_stdin():
 
     return paths
 
-def is_landscape(image):
-    return image.width > image.height
+def is_landscape(width, height):
+    return width > height
 
-def is_larger(image, window):
-    return image.width > window.width and image.height > window.height
+def is_larger(width, height, window):
+    return width > window.width and height > window.height
 
 def get_oversize_scale(window, image):
     scale = get_fit_scale(window, image)
-
     return scale * 1.3
 
 def get_fit_scale(window, image):
-    if is_landscape(image):
-        if is_larger(image, window):
-            scale = window.height / image.height
-        else:
-            scale = window.width / image.width
+    if is_gif_animation(image):
+        image_width = image.get_max_width()
+        image_height = image.get_max_height()
     else:
-        scale = window.height / image.height
+        image_width = image.width
+        image_height = image.height
+
+    if is_landscape(image_width, image_height):
+        if is_larger(image_width, image_height, window):
+            scale = window.height / image_height
+        else:
+            scale = window.width / image_width
+    else:
+        scale = window.height / image_height
 
     return scale
 
