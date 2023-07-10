@@ -38,8 +38,6 @@ import argparse
 import random
 import pyglet
 import pyperclip
-from shadow_label import *
-from help_usage import *
 
 import pyglet
 
