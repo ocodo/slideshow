@@ -1,10 +1,16 @@
-dev:
+dev_demo:
 	./slideshow.py ./slides
+
+portrait_demo:
+	./slideshow.py ./portrait_slides
+
+landscape_demo:
+	./slideshow.py ./landscape_slides
 
 install:
 	cp ./slideshow.py ~/.zsh.d/bin/slideshow
 
-run:
-	slideshow ./slides
+show_downloads:
+	slideshow ${HOME}/Downloads
 
-all: install run
+all: install show_downloads

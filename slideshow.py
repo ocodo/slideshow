@@ -10,12 +10,17 @@ import argparse
 import random
 import pyglet
 import pyperclip
+from shadow_label import *
+from help_usage import *
 
+pan_speed_slowest = 20
+pan_speed_fastest = 40
+pan_speed_alt_axis = 3
 update_interval_seconds = 6.0
 progress_bar_height = 2
 mouse_hide_delay = 4.0
-pan_speed_x = 0
-pan_speed_y = 0
+pan_speed_x = 10
+pan_speed_y = 10
 zoom_speed = 0
 image_paths = []
 saved_image_paths = []
@@ -26,7 +31,7 @@ img = None
 sprite = None
 ken_burns = True
 random_image = False
-staus_label = None
+status_label = None
 status_label_hide_delay = 2
 paused = False
 window = pyglet.window.Window(resizable=True,style='borderless')
@@ -34,36 +39,50 @@ progress = 0
 
 def osd(message):
     pyglet.clock.unschedule(hide_status_message)
-    status_label.text = message
-    status_label.opacity = 255
+    status_label.show(message)
     pyglet.clock.schedule_once(hide_status_message, status_label_hide_delay)
 
 def osd_small(message):
     pyglet.clock.unschedule(hide_small_status_message)
-    status_label_small.text = message
     status_label_small.x = window.width - 10
-    status_label_small.opacity = 255
+    status_label_small.show(message)
     pyglet.clock.schedule_once(hide_small_status_message, status_label_hide_delay)
 
 def is_gif_animation(image):
     return isinstance(image, pyglet.image.Animation)
 
 def hide_small_status_message(dt):
-    status_label_small.opacity = 0
+    status_label_small.hide()
 
 def hide_status_message(dt):
-    status_label.opacity = 0
+    status_label.hide()
 
-def randomize_pan_zoom_speeds():
+def coin_toss():
+    return random.randint(0,100) > 50
+
+def randomize_pan_zoom_speeds(image):
     global pan_speed_x, pan_speed_y, zoom_speed
-    pan_speed_x = random.randint(-8, 8)
-    pan_speed_y = random.randint(-8, 8)
+    width, height = get_width_height(image)
+    if is_landscape(width, height):
+        pan_speed_x = random.randint(pan_speed_slowest, pan_speed_fastest) * (height/width)
+        pan_speed_y = random.randint(-pan_speed_alt_axis, pan_speed_alt_axis) * (height/width)
+        if coin_toss():
+            pan_speed_x = -pan_speed_x
+    else:
+        pan_speed_y = random.randint(pan_speed_slowest, pan_speed_fastest) * (width/height)
+        pan_speed_x = random.randint(-3, 3) * (width/height)
+        if coin_toss():
+            pan_speed_y = -pan_speed_y
+
     zoom_speed = random.uniform(-0.01,-0.001)
 
 def update_pan(dt):
     if ken_burns:
         sprite.x += dt * pan_speed_x
         sprite.y += dt * pan_speed_y
+
+        # debug panning
+        # osd(f"Pan {pan_speed_y > 0 and 'up' or 'down'}:{pan_speed_y:.2f} {pan_speed_x > 0 and 'right' or 'left'}:{pan_speed_x:.2f} [x:{sprite.x:.2f} y:{sprite.y:.2f}]")
 
 def update_zoom(dt):
     if ken_burns:
@@ -77,13 +96,27 @@ def load_image(image):
     return image
 
 def setup_sprite():
+    width, height = get_width_height(img)
     if ken_burns:
+        randomize_pan_zoom_speeds(img)
         sprite.scale = get_oversize_scale(window, img)
+        if is_landscape(width, height):
+            sprite.y = (window.height - sprite.height) / 2
+            if pan_speed_x > 0:
+                sprite.x = window.width - sprite.height
+            else:
+                sprite.x = 0
+        else:
+            sprite.x = (window.width - sprite.width) / 2
+            if pan_speed_y > 0:
+                sprite.y = window.height - sprite.height
+            else:
+                sprite.y = 0
+
     else:
         sprite.scale = get_fit_scale(window, img)
-
-    sprite.x = (window.width - sprite.width) / 2
-    sprite.y = (window.height - sprite.height) / 2
+        sprite.x = (window.width - width) / 2
+        sprite.y = (window.height - height) / 2
 
 def get_random_image():
     global image_filename, image_index, random_image, img, image_random_viewed, image_paths
@@ -132,9 +165,6 @@ def previous_image():
 
     setup_sprite()
 
-    if ken_burns:
-        randomize_pan_zoom_speeds()
-
     window.clear()
 
 def next_image():
@@ -157,9 +187,6 @@ def update_image(dt):
     sprite.image = img
 
     setup_sprite()
-
-    if ken_burns:
-        randomize_pan_zoom_speeds()
 
     window.clear()
 
@@ -205,13 +232,14 @@ def get_oversize_scale(window, image):
     scale = get_fit_scale(window, image)
     return scale * 1.3
 
-def get_fit_scale(window, image):
+def get_width_height(image):
     if is_gif_animation(image):
-        image_width = image.get_max_width()
-        image_height = image.get_max_height()
+        return (image.get_max_width(), image.get_max_height())
     else:
-        image_width = image.width
-        image_height = image.height
+        return (image.width, image.height)
+
+def get_fit_scale(window, image):
+    image_width, image_height = get_width_height(image)
 
     if is_landscape(image_width, image_height):
         if is_larger(image_width, image_height, window):
@@ -292,8 +320,10 @@ def progress_bar_draw():
 def on_draw():
     window.clear()
     sprite.draw()
+
     status_label.draw()
     status_label_small.draw()
+
     progress_bar_draw()
 
 @window.event
@@ -381,33 +411,7 @@ if __name__ == '__main__':
         args_dir = sys.argv[1]
 
     if args_dir and args_dir == '-h' or args_dir == '--help;':
-        print("""
-        Slideshow will look for valid jpg, jpeg, png & gif image filenames in stdin,
-        or from a directory and display them.
-
-        Usage:
-        slideshow [directory]
-        slideshow < list_of_image_filenames
-
-        Keyboard Controls:
-        Esc,q - quit
-        [, ] - change image delay time
-        1-9 - change image delay time (number to seconds)
-        f - maximize window (fullscreen)
-        r - random toggle
-        k - Ken Burns effect toggle
-        i - Copy image filename to clipboard
-        SPACE - pause/resume
-        left, right - move between images
-
-        Mouse Controls:
-        Left click - move between images (click on left or right side)
-        Right click
-          left side (1/3) - random/ordered
-          middle (1/3) - pause/resume
-          right side (1/3) - Ken Burns effect toggle
-
-        """, file=sys.stderr)
+        print(help_usage, file=sys.stderr)
         exit(0)
 
     if args_dir:
@@ -424,31 +428,27 @@ if __name__ == '__main__':
       img = load_image(image_filename)
       sprite = pyglet.sprite.Sprite(img)
 
-      setup_sprite()
-
       background_bar = pyglet.shapes.Rectangle(0, 0, window.width, progress_bar_height, color=(50,50,50))
       progress_bar = pyglet.shapes.Rectangle(0, 0, 0, progress_bar_height, color=(255, 255, 255))
       hide_progress_bar()
 
-      status_label = pyglet.text.Label(
+      status_label = ShadowLabel(
           '',
-          font_name='Arial',
-          font_size=14,
           x=10,
           y=10,
-          color=(255, 255, 255, 255)
+          anchor_x='left',
+          anchor_y='bottom'
       )
 
-      status_label_small = pyglet.text.Label(
+      status_label_small = ShadowLabel(
           '',
-          font_name='Courier New',
-          font_size=14,
           x=10,
           y=10,
-          anchor_x='right',
-          anchor_y='bottom',
-          color=(255, 255, 255, 255)
+          anchor_x='left',
+          anchor_y='bottom'
       )
+
+      setup_sprite()
 
       pyglet.clock.schedule_interval(update_image, update_interval_seconds)
       pyglet.clock.schedule_interval(update_pan, 1/60.0)
