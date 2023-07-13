@@ -1,13 +1,20 @@
 # Goals
 
-- [x] Fix fit to screen
- 
+- [x] [Delete the current image file, only when paused (Press backspace, and repeat backspace to confirm).](https://github.com/ocodo/slideshow/issues/3) 
+- [ ] Sort by:
+  - [ ] Name
+    - [ ] A-Z - A
+    - [ ] Z-A - Shift + A
+  - [ ] File Creation Date
+    - [ ] Desc - T
+    - [ ] Asc - Shift + T
+
 - - -
 
 ### Protocol
 
 1. Add any project goal here. Unless it takes less effort to reach that goal.
-2. If they are older than today, Goals should be added as repo issues.
+2. If they are older than today, add as repo issues.
 3. Link Active goals to repo issues.
 3. Set the goal checkbox in their resolution commit.
 4. Remove closed issues in the next commit.

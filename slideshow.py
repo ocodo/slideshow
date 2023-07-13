@@ -46,12 +46,12 @@ class ShadowLabel:
                  opacity=255, color=(255,255,255,255), shadow_color=(0,0,0,127),
                  offset_x=2, offset_y=-2,
                  anchor_x='center', anchor_y='center'):
-        self._text = text
         self._x = x
-        self._y = y
         self._offset_x = offset_x
+        self._y = y
         self._offset_y = offset_y
         self._opacity = opacity
+        self._text = text
         self.main_label = pyglet.text.Label(
             self._text,
             font_name=font_name,
@@ -108,7 +108,7 @@ class ShadowLabel:
     def x(self, value):
         self._x = value
         self.main_label.x = value
-        self.shadow_label.x = value + self._x_offset
+        self.shadow_label.x = self._offset_x + value
 
     @property
     def y(self):
@@ -118,46 +118,54 @@ class ShadowLabel:
     def y(self, value):
         self._y = value
         self.main_label.y = value
-        self.shadow_label.y = value + self._y_offset
+        self.shadow_label.y = self._offset_y + value
 
     def draw(self):
         self.shadow_label.draw()
         self.main_label.draw()
 
-pan_speed_slowest = 20
-pan_speed_fastest = 40
-pan_speed_alt_axis = 3
-update_interval_seconds = 6.0
-progress_bar_height = 2
-mouse_hide_delay = 4.0
-pan_speed_x = 10
-pan_speed_y = 10
-zoom_speed = 0
 image_paths = []
 saved_image_paths = []
 image_random_viewed = []
-image_index = 0
+
 image_filename = ""
+image_index = 0
 img = None
 sprite = None
-ken_burns = True
-random_image = False
 status_label = None
-status_label_hide_delay = 2
-paused = False
-window = pyglet.window.Window(resizable=True,style='borderless')
-progress = 0
+status_label_small = None
 
-def osd(message):
+status_label_hide_delay = 2
+update_interval_seconds = 6.0
+mouse_hide_delay = 4.0
+
+pan_speed_slowest = 20
+pan_speed_fastest = 40
+pan_speed_alt_axis = 3
+pan_speed_x = 10
+pan_speed_y = 10
+zoom_speed = 0
+progress = 0
+progress_bar_height = 2
+
+ken_burns = True
+paused = False
+can_delete = False
+confirm_delete = False
+random_image = False
+
+window = pyglet.window.Window(resizable=True,style='borderless')
+
+def osd(message, delay=status_label_hide_delay):
     pyglet.clock.unschedule(hide_status_message)
     status_label.show(message)
-    pyglet.clock.schedule_once(hide_status_message, status_label_hide_delay)
+    pyglet.clock.schedule_once(hide_status_message, delay)
 
-def osd_small(message):
+def osd_small(message, delay=status_label_hide_delay):
     pyglet.clock.unschedule(hide_small_status_message)
     status_label_small.x = window.width - 10
     status_label_small.show(message)
-    pyglet.clock.schedule_once(hide_small_status_message, status_label_hide_delay)
+    pyglet.clock.schedule_once(hide_small_status_message, delay)
 
 def is_gif_animation(image):
     return isinstance(image, pyglet.image.Animation)
@@ -199,12 +207,11 @@ def update_zoom(dt):
     if ken_burns:
         sprite.scale -= dt * zoom_speed
 
-def load_image(image):
-    if image.endswith('gif'):
-        image = pyglet.image.load_animation(image)
+def load_image(filename):
+    if filename.endswith('gif'):
+        return pyglet.image.load_animation(filename)
     else:
-        image = pyglet.image.load(image)
-    return image
+        return pyglet.image.load(filename)
 
 def setup_sprite():
     width, height = get_width_height(img)
@@ -245,20 +252,22 @@ def get_random_image():
         return get_random_image()
 
 def nav_next():
-    if not paused:
-        pause()
-        update_image(0)
-        resume()
-    else:
-        update_image(0)
+    if len(image_paths) > 0:
+        if not paused:
+            pause()
+            update_image(0)
+            resume()
+        else:
+            update_image(0)
 
 def nav_prevous():
-    if not paused:
-        pause()
-        previous_image()
-        resume()
-    else:
-        previous_image()
+    if len(image_paths) > 0:
+        if not paused:
+            pause()
+            previous_image()
+            resume()
+        else:
+            previous_image()
 
 def previous_image():
     global random_image, image_index, image_filename, img
@@ -390,11 +399,13 @@ def toggle_ken_burns():
         osd(f"Ken Burns Effect: Off")
 
 def toggle_pause():
-    global paused
+    global paused, can_delete
     paused = not paused
     if paused:
+        can_delete = True
         pause(True)
     else:
+        can_delete = False
         resume(True)
 
 def toggle_random_image():
@@ -436,7 +447,34 @@ def on_draw():
     status_label.draw()
     status_label_small.draw()
 
-    progress_bar_draw()
+    if len(image_paths) > 0:
+        progress_bar_draw()
+
+def image_delete():
+    global can_delete, confirm_delete, image_filename
+    if len(image_paths) == 0:
+        osd("No more images (This image file is already deleted, press Q to quit.)")
+        return
+
+    if can_delete:
+        if not (confirm_delete and can_delete):
+            pyglet.clock.schedule_once(confirm_delete_timeout, 4)
+            osd_small(f"Delete this image: {image_filename}? [Press Backspace again to confirm]", 3)
+            confirm_delete = True
+        else:
+            confirm_delete = False
+            image_paths.remove(image_filename)
+            os.remove(image_filename)
+            osd_small(f"Deleted {image_filename}.", 1)
+            saved_image_paths = image_paths.copy()
+            if len(image_paths) > 0:
+                nav_next()
+            else:
+                osd("No more images")
+
+def confirm_delete_timeout(dt):
+    global confirm_delete
+    confirm_delete = False
 
 @window.event
 def on_key_release(symbol, modifiers):
@@ -467,6 +505,9 @@ def on_key_release(symbol, modifiers):
 
     elif key.RIGHT == symbol:
         nav_next()
+
+    elif key.BACKSPACE == symbol:
+        image_delete()
 
     elif key.BRACKETLEFT == symbol:
         update_interval_seconds = max(update_interval_seconds - 0.5, 0.5)
@@ -557,8 +598,9 @@ if __name__ == '__main__':
           '',
           x=10,
           y=10,
-          anchor_x='left',
-          anchor_y='bottom'
+          anchor_x='right',
+          anchor_y='bottom',
+          font_size=12
       )
 
       setup_sprite()
