@@ -357,8 +357,12 @@ def get_fit_scale(window, image):
             scale = window.height / image_height
         else:
             scale = window.width / image_width
+        if (image_height * scale) > window.height:
+            scale = window.height / image_height
     else:
         scale = window.height / image_height
+        if (image_width * scale) > window.width:
+            scale = window.width / image_width
 
     return scale
 

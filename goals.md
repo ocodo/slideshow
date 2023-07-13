@@ -1,6 +1,6 @@
 # Goals
 
-- [ ] Fix fit to screen
+- [x] Fix fit to screen
  
 - - -
 
