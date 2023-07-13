@@ -390,8 +390,9 @@ def reset_clock(show_message=True):
     if show_message:
         osd(f"Interval: {update_interval_seconds:.2f}")
 
-    pyglet.clock.unschedule(update_image)
-    pyglet.clock.schedule_interval(update_image, update_interval_seconds)
+    if not paused:
+        pyglet.clock.unschedule(update_image)
+        pyglet.clock.schedule_interval(update_image, update_interval_seconds)
 
 def pause(osd_message=False):
     if osd_message:
