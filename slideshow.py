@@ -507,6 +507,7 @@ def on_mouse_scroll(x, y, scroll_x, scroll_y):
 def on_mouse_motion(x, y, dx, dy):
     window.set_mouse_visible(visible=True)
     show_progress_bar()
+    pyglet.clock.unschedule(hide_mouse)
     pyglet.clock.schedule_once(hide_mouse, mouse_hide_delay)
 
 @window.event
