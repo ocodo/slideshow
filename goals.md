@@ -1,12 +1,5 @@
 # Goals
 
-- [x] Sort by:
-  - [x] Name
-    - [x] A-Z - press a
-    - [x] Z-A - press z
-  - [x] File Creation Date
-    - [x] Desc - press n
-    - [x] Asc - press o
 
 - - -
 
