@@ -342,6 +342,16 @@ def get_image_paths_from_stdin():
 
     return paths
 
+def sort_image_paths_by_date_created(reverse=False):
+    global image_index, image_paths
+    image_paths.sort(key=lambda x: os.path.getctime(x), reverse=reverse)
+    image_index = image_paths.index(image_filename)
+
+def sort_image_paths_by_alpha(reverse=False):
+    global image_index, image_paths
+    image_paths.sort(key=str.lower, reverse=reverse)
+    image_index = image_paths.index(image_filename)
+
 def is_landscape(width, height):
     return width > height
 
@@ -418,7 +428,7 @@ def toggle_random_image():
     else:
         osd(f"Sequence")
 
-def window_max_size():
+def resize_window_to_screen():
     screen = window.display.get_default_screen()
     width = screen.width
     height = screen.height
@@ -491,7 +501,7 @@ def on_key_release(symbol, modifiers):
         toggle_random_image()
 
     elif key.F == symbol:
-        window_max_size()
+        resize_window_to_screen()
 
     elif key.K == symbol:
         toggle_ken_burns()
@@ -505,6 +515,22 @@ def on_key_release(symbol, modifiers):
 
     elif key.RIGHT == symbol:
         nav_next()
+
+    elif key.O == symbol:
+        osd(f"Sort by oldest first...")
+        sort_image_paths_by_date_created(reverse=False)
+
+    elif key.N == symbol:
+        osd(f"Sort by newest first...")
+        sort_image_paths_by_date_created(reverse=True)
+
+    elif key.A == symbol:
+        osd(f"Sort alphabetically...")
+        sort_image_paths_by_alpha(reverse=False)
+
+    elif key.Z == symbol:
+        osd(f"Sort reverse alphabetically...")
+        sort_image_paths_by_alpha(reverse=True)
 
     elif key.BACKSPACE == symbol:
         image_delete()
