@@ -279,6 +279,7 @@ def previous_image():
         else:
             image_index = len(image_paths) - 1
 
+    reset_clock(False)
     image_filename = image_paths[image_index]
     img = load_image(image_filename)
     sprite.image = img
@@ -305,7 +306,7 @@ def update_image(dt):
     global img
     img = next_image()
     sprite.image = img
-
+    reset_clock(False)
     setup_sprite()
 
     window.clear()
@@ -385,8 +386,10 @@ def get_fit_scale(window, image):
 
     return scale
 
-def reset_clock():
-    osd(f"Interval: {update_interval_seconds:.2f}")
+def reset_clock(show_message=True):
+    if show_message:
+        osd(f"Interval: {update_interval_seconds:.2f}")
+
     pyglet.clock.unschedule(update_image)
     pyglet.clock.schedule_interval(update_image, update_interval_seconds)
 
