@@ -453,10 +453,17 @@ def progress_bar_draw():
     background_bar.draw()
     progress_bar.draw()
 
+def draw_rect(x, y, width, height, stroke_width=2, color=(0,0,0)):
+    pyglet.shapes.Line(x, y, x + width, y, width=stroke_width, color=color).draw()
+    pyglet.shapes.Line(x + width, y, x + width, y + height, width=stroke_width, color=color).draw()
+    pyglet.shapes.Line(x + width, y + height, x, y + height, width=stroke_width, color=color).draw()
+    pyglet.shapes.Line(x, y + height, x, y, width=stroke_width, color=color).draw()
+
 @window.event
 def on_draw():
     window.clear()
     sprite.draw()
+    draw_rect(sprite.x, sprite.y, sprite.width, sprite.height)
 
     status_label.draw()
     status_label_small.draw()
@@ -610,6 +617,7 @@ if __name__ == '__main__':
       saved_image_paths = image_paths.copy()
       image_filename = image_paths[image_index]
       img = load_image(image_filename)
+
       sprite = pyglet.sprite.Sprite(img)
 
       background_bar = pyglet.shapes.Rectangle(0, 0, window.width, progress_bar_height, color=(50,50,50))
