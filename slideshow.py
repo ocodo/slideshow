@@ -5,18 +5,19 @@
 # See README.md for more info
 
 help_osd = """
-Slideshow
-Keyboard Controls:
-Esc or Q   - Quit                           k     - Ken Burns effect toggle
-[,]        - Change image delay time        i     - Copy filename to clipboard
-1-9        - Change image delay time        o,n   - Oldest/newest order
-f          - Maximize window                a,z   - alphabetical/reverse order
-r          - Random/selection order toggle  SPACE - Pause/resume
-left,right - Move between images
+Slideshow Controls
 
-Mouse Controls:
-Left Click on left or right side - move between images
-Right click on window 3rds: random, pause, ken burns
+Keyboard:
+SPACE - Pause/resume                   /   - Show this page
+Q     - Quit (also Esc)                k   - Ken Burns effect toggle
+[,]   - Change image delay time        i   - Copy filename to clipboard
+1-9   - Change image delay time        o,n - Oldest/newest order
+f     - Maximize window                a,z - Alphabetical/reverse order
+r     - Random/selection order toggle  ← → - Prev/next image
+
+Mouse:
+Left Click left or right side - Prev/next image
+Right click window 3rds - Toggle Random // Toggle Pause // Toggle Ken Burns
 Scroll - Zoom
 """
 
@@ -181,7 +182,6 @@ window = pyglet.window.Window(resizable=True,style='borderless')
 def osd_banner(message, delay=osd_banner_delay):
     pyglet.clock.unschedule(hide_osd_banner)
 
-    banner_label.width = window.width * 0.666666
     banner_label.x = window.width // 2
     banner_label.y = window.height // 2
     banner_label.show(message)
