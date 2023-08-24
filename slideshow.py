@@ -366,43 +366,19 @@ def show_progress_bar():
 def get_image_paths(input_dir='.'):
     paths = []
     for f in os.listdir(input_dir):
-        if f.endswith(
-           ('bmp', 'dds', 'exif', 'gif', 'jpg', 'jpeg', 'jp2', 'jpx', 'pcx', 'png', 'pnm', 'ras', 'tga', 'tif', 'tiff', 'xbm', 'xpm')
-        ):
+        if f.endswith(('jpg', 'jpeg', 'png', 'gif')):
             path = os.path.abspath(os.path.join(input_dir, f))
             paths.append(path)
 
     paths.sort(key=str.lower)
     return paths
 
-def get_image_paths_from_file(file):
-    paths = []
-    fd = open(file)
-    for f in fd.readlines():
-      if f.endswith(
-           ('bmp', 'dds', 'exif', 'gif', 'jpg', 'jpeg', 'jp2', 'jpx', 'pcx', 'png', 'pnm', 'ras', 'tga', 'tif', 'tiff', 'xbm', 'xpm')
-        ):
-            path = os.path.abspath(os.path.join(input_dir, f))
-            paths.append(path)
-      if f.endswith((('slideshow'))):
-          for file in get_image_paths_from_file(file):
-              paths.append(file)
-
-    return paths
-
 def get_image_paths_from_stdin():
     paths = []
     for f in sys.stdin:
         f = f.rstrip()
-        if f.endswith(
-                ('bmp', 'dds', 'exif', 'gif', 'jpg', 'jpeg', 'jp2', 'jpx', 'pcx', 'png', 'pnm', 'ras', 'tga', 'tif', 'tiff', 'xbm', 'xpm')
-        ):
+        if f.endswith(('bmp', 'dds', 'exif', 'gif', 'jpg', 'jpeg', 'jp2', 'jpx', 'pcx', 'png', 'pnm', 'ras', 'tga', 'tif', 'tiff', 'xbm', 'xpm')):
             paths.append(f)
-        if f.endswith((('slideshow'))):
-            for file in get_image_paths_from_file(file):
-                paths.append(file)
-
-def get_image_paths_from(list):
 
     return paths
 
