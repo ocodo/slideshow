@@ -601,7 +601,7 @@ def on_key_release(symbol, modifiers):
         reset_clock()
 
     elif symbol in [key._1, key._2, key._3, key._4, key._5, key._6, key._7, key._8, key._9]:
-        update_interval_seconds = float(symbol - 48)
+        update_interval_seconds = float(symbol - 48) * 2
         reset_clock()
 
 @window.event
@@ -635,7 +635,7 @@ def on_mouse_scroll(x, y, scroll_x, scroll_y):
         return
 
     # Calculate the zoom factor based on scroll direction
-    zoom_factor = 1.1 if scroll_y < 0 else 0.9
+    zoom_factor = 0.98 if scroll_y < 0 else 1.01
 
     # Calculate the new pan coordinates based on the current pan and zoom factor
     new_pan_x = slide.x + (slide.width / 2) * (1 - zoom_factor)
