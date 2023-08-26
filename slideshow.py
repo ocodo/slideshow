@@ -5,7 +5,7 @@
 # See README.md for more info
 
 help_osd = """
-Slideshow Controls
+Slideshow Controls (v2.0)
 
 Keyboard:
 SPACE - Pause/resume                   /   - Show this page
@@ -42,6 +42,7 @@ Keyboard Controls:
   left, right - move between images
 
 Mouse Controls:
+  Scroll - zoom in/out
   Left click - move between images (click on left or right side)
   Right click
     left side (1/3) - random/ordered
@@ -146,9 +147,11 @@ class ShadowLabel:
         self.shadow_label.draw()
         self.main_label.draw()
 
+SLIDESHOW_EXTENSION = '.slideshow'
+IMAGE_EXTENSIONS = ('jpg', 'jpeg', 'png', 'gif', 'bmp', 'dds', 'exif', 'jp2', 'jpx', 'pcx', 'pnm', 'ras', 'tga', 'tif', 'tiff', 'xbm', 'xpm')
+
 image_paths = []
 saved_image_paths = []
-image_random_viewed = []
 
 image_filename = ""
 image_index = 0
@@ -176,6 +179,7 @@ paused = False
 can_delete = False
 confirm_delete = False
 random_image = False
+drag_pan = False # on during pan and off at the next mouse
 
 window = pyglet.window.Window(resizable=True,style='borderless')
 
@@ -235,9 +239,6 @@ def update_pan(dt):
         slide.x += dt * pan_speed_x
         slide.y += dt * pan_speed_y
 
-        # debug panning
-        # osd(f"Pan {pan_speed_y > 0 and 'up' or 'down'}:{pan_speed_y:.2f} {pan_speed_x > 0 and 'right' or 'left'}:{pan_speed_x:.2f} [x:{sprite.x:.2f} y:{sprite.y:.2f}]")
-
 def update_zoom(dt):
     if ken_burns:
         slide.scale -= dt * zoom_speed
@@ -275,21 +276,6 @@ def setup_slide():
         slide.x = (window.width - slide.width) / 2
         slide.y = (window.height - slide.height) / 2
 
-def get_random_image():
-    global image_filename, image_index, random_image, img, image_random_viewed, image_paths
-
-    if len(image_paths) > 0:
-        image_filename = random.choice(image_paths)
-        image_index = image_paths.index(image_filename)
-        image_paths.pop(image_index)
-        image_random_viewed.append(image_filename)
-        img = load_image(image_filename)
-        return img
-    else:
-        image_paths = saved_image_paths.copy()
-        image_random_viewed = []
-        return get_random_image()
-
 def nav_next():
     if len(image_paths) > 0:
         if not paused:
@@ -310,13 +296,10 @@ def nav_prevous():
 
 def previous_image():
     global random_image, image_index, image_filename, img
-    if random_image:
-        return
+    if image_index > 0:
+        image_index -= 1
     else:
-        if image_index > 0:
-            image_index -= 1
-        else:
-            image_index = len(image_paths) - 1
+        image_index = len(image_paths) - 1
 
     reset_clock(False)
     image_filename = image_paths[image_index]
@@ -329,17 +312,15 @@ def previous_image():
 
 def next_image():
     global image_index, image_filename, img
-    if random_image:
-        return get_random_image()
-    else:
-        if image_index < len(image_paths) - 1:
-            image_index += 1
-        else:
-            image_index = 0
 
-        image_filename = image_paths[image_index]
-        img = load_image(image_filename)
-        return img
+    if image_index < len(image_paths) - 1:
+        image_index += 1
+    else:
+        image_index = 0
+
+    image_filename = image_paths[image_index]
+    img = load_image(image_filename)
+    return img
 
 def update_image(dt):
     global img
@@ -363,24 +344,51 @@ def show_progress_bar():
     background_bar.width = window.width
     background_bar.opacity = 255
 
-def get_image_paths(input_dir='.'):
+def get_valid_image_path(base_dir, input_path):
+    # Check if the path is an absolute path
+    if os.path.isabs(input_path):
+        return input_path
+
+    # If not, treat it as a relative path to the containing file location
+    return os.path.abspath(os.path.join(base_dir, input_path))
+
+def get_image_paths(input_list):
     paths = []
-    for f in os.listdir(input_dir):
-        if f.endswith(('jpg', 'jpeg', 'png', 'gif')):
-            path = os.path.abspath(os.path.join(input_dir, f))
+    for f in input_list:
+        f = f.rstrip()
+        if f.endswith(SLIDESHOW_EXTENSION):
+            paths.extend(get_image_paths_from_file(f))
+        elif f.endswith(IMAGE_EXTENSIONS):
+            path = os.path.abspath(f)
             paths.append(path)
 
     paths.sort(key=str.lower)
     return paths
 
-def get_image_paths_from_stdin():
-    paths = []
-    for f in sys.stdin:
-        f = f.rstrip()
-        if f.endswith(('bmp', 'dds', 'exif', 'gif', 'jpg', 'jpeg', 'jp2', 'jpx', 'pcx', 'png', 'pnm', 'ras', 'tga', 'tif', 'tiff', 'xbm', 'xpm')):
-            paths.append(f)
+def get_image_paths_from_directory(input_dir='.'):
+    file_list = os.listdir(input_dir)
+    file_paths = [os.path.join(input_dir, f) for f in file_list]
+    return get_image_paths(file_paths)
 
-    return paths
+def get_image_paths_from_stdin():
+    file_list = sys.stdin.readlines()
+    base_dir = os.getcwd()  # Get the current working directory
+
+    # Validate and convert paths to full paths if necessary
+    image_paths = [get_valid_image_path(base_dir, path.strip()) for path in file_list]
+
+    return get_image_paths(image_paths)
+
+def get_image_paths_from_file(file_path):
+    with open(file_path, 'r') as file:
+        file_list = file.readlines()
+
+    base_dir = os.path.dirname(file_path)  # Get the directory containing the file
+
+    # Validate and convert paths to full paths if necessary
+    image_paths = [get_valid_image_path(base_dir, path.strip()) for path in file_list]
+
+    return get_image_paths(image_paths)
 
 def sort_image_paths_by_date_created(reverse=False):
     global image_index, image_paths
@@ -462,13 +470,15 @@ def toggle_pause():
         resume(True)
 
 def toggle_random_image():
-    global random_image, image_paths, image_random_viewed
+    global random_image, image_paths, image_index
     random_image = not random_image
-    image_paths = saved_image_paths.copy()
-    image_random_viewed = []
     if random_image:
+        random.shuffle(image_paths)  # Shuffle the original list for random mode
+        image_index = 0  # Reset image index to start from the beginning
         osd(f"Random")
     else:
+        image_paths = saved_image_paths.copy()  # Use sequential list
+        image_index = saved_image_paths.index(image_filename)  # Restore the original index
         osd(f"Sequence")
 
 def resize_window_to_screen():
@@ -481,14 +491,7 @@ def resize_window_to_screen():
     window.height = height
 
 def progress_bar_draw():
-    if random_image:
-        if len(image_random_viewed) > 0:
-            progress_bar.width = window.width * (len(image_random_viewed) / len(saved_image_paths))
-        else:
-            progress_bar.width = 0
-    else:
-        progress_bar.width = window.width * ((image_index + 1) / len(image_paths))
-
+    progress_bar.width = window.width * ((image_index + 1) / len(image_paths))
     background_bar.draw()
     progress_bar.draw()
 
@@ -603,6 +606,11 @@ def on_key_release(symbol, modifiers):
 
 @window.event
 def on_mouse_release(x, y, button, modifiers):
+    global drag_pan
+    if drag_pan:
+        drag_pan = False
+        return
+
     width = window.width
     if button == pyglet.window.mouse.LEFT:
         if x < width * 0.5:
@@ -620,12 +628,38 @@ def on_mouse_release(x, y, button, modifiers):
 
 @window.event
 def on_mouse_scroll(x, y, scroll_x, scroll_y):
-    if scroll_y < 0:
-        slide.scale -= 0.01
-    else:
-        slide.scale += 0.01
+    global slide, drag_pan
 
-    center_slide()
+    if drag_pan:
+        drag_pan = False
+        return
+
+    # Calculate the zoom factor based on scroll direction
+    zoom_factor = 1.1 if scroll_y < 0 else 0.9
+
+    # Calculate the new pan coordinates based on the current pan and zoom factor
+    new_pan_x = slide.x + (slide.width / 2) * (1 - zoom_factor)
+    new_pan_y = slide.y + (slide.height / 2) * (1 - zoom_factor)
+
+    # Update the pan coordinates
+    slide.x = new_pan_x
+    slide.y = new_pan_y
+
+    # Apply the zoom factor to the image
+    slide.scale *= zoom_factor
+
+    # Redraw the image
+    window.clear()
+
+@window.event
+def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
+    global slide, drag_pan
+    slide.x += dx
+    slide.y += dy
+    drag_pan = True
+
+    # Redraw the image
+    window.clear()
 
 @window.event
 def on_mouse_motion(x, y, dx, dy):
@@ -648,7 +682,10 @@ if __name__ == '__main__':
         exit(0)
 
     if args_dir:
-        image_paths = get_image_paths(args_dir)
+        if os.path.isdir(args_dir):
+            image_paths = get_image_paths_from_directory(args_dir)
+        elif os.path.isfile(args_dir):
+            image_paths = get_image_paths_from_file(args_dir)
     else:
         image_paths = get_image_paths_from_stdin()
 
