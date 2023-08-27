@@ -13,7 +13,8 @@ Python / OpenGL image slideshow
 ### Usage
 
     # from the repo dir
-    python3 slideshow.py <image_dir>
+    pip install -r requirements.txt
+    python slideshow.py <image_dir>
     
 `slideshow.py` can also be placed in your `$PATH` and run standalone:
 
@@ -31,7 +32,9 @@ Python / OpenGL image slideshow
 | `1`-`9`        | 1 sec intervals from 1-9                     |
 | `[` and `]`    | Decrease interval / increase interval by 0.5 |
 | `i`            | Copy current image filename to clipboard     |
-|                |                                              |
+| `a` (or `z`)   | Sort images alphabetically (or reverse)      |
+| `n` (or `o`)   | Sort images by newest date (or oldest)       |
+
 
 ### Mouse controls
 
@@ -42,7 +45,8 @@ Python / OpenGL image slideshow
 | Right click, right 3rd of window | Ken Burns Effect Toggle                  |
 | Right click, left 3rd of window  | Random Toggle                            |
 | Right click, Middle of window    | Pause                                    |
-| Scroll wheel                     | Adjust interval (up faster, down slower) |
+| Scroll wheel                     | Zoom                                     |
+| Drag                             | Pan                                      |
 |                                  |                                          |
 
 ### Installation
