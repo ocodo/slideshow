@@ -176,8 +176,6 @@ progress_bar_height = 2
 
 ken_burns = True
 paused = False
-can_delete = False
-confirm_delete = False
 random_image = False
 drag_pan = False # on during pan and off at the next mouse
 
@@ -460,13 +458,11 @@ def toggle_ken_burns():
         osd(f"Ken Burns Effect: Off")
 
 def toggle_pause():
-    global paused, can_delete
+    global paused
     paused = not paused
     if paused:
-        can_delete = True
         pause(True)
     else:
-        can_delete = False
         resume(True)
 
 def toggle_random_image():
@@ -514,32 +510,6 @@ def on_draw():
     if len(image_paths) > 0:
         progress_bar_draw()
 
-def image_delete():
-    global can_delete, confirm_delete, image_filename
-    if len(image_paths) == 0:
-        osd("No more images (This image file is already deleted, press Q to quit.)")
-        return
-
-    if can_delete:
-        if not (confirm_delete and can_delete):
-            pyglet.clock.schedule_once(confirm_delete_timeout, 4)
-            osd_small(f"Delete this image: {image_filename}? [Press Backspace again to confirm]", 3)
-            confirm_delete = True
-        else:
-            confirm_delete = False
-            image_paths.remove(image_filename)
-            os.remove(image_filename)
-            osd_small(f"Deleted {image_filename}.", 1)
-            saved_image_paths = image_paths.copy()
-            if len(image_paths) > 0:
-                nav_next()
-            else:
-                osd("No more images")
-
-def confirm_delete_timeout(dt):
-    global confirm_delete
-    confirm_delete = False
-
 @window.event
 def on_key_release(symbol, modifiers):
     global update_interval_seconds
@@ -585,9 +555,6 @@ def on_key_release(symbol, modifiers):
     elif key.Z == symbol:
         osd(f"Sort reverse alphabetically...")
         sort_image_paths_by_alpha(reverse=True)
-
-    elif key.BACKSPACE == symbol:
-        image_delete()
 
     elif key.SLASH == symbol:
         osd_banner(help_osd)
