@@ -16,10 +16,38 @@ Python / OpenGL image slideshow
     # from the repo dir
     pip install -r requirements.txt
     python slideshow.py <image_dir>
+
+    # stdin
+    # slideshow.py is executable
+    find images/ | ./slideshow.py
+
+    # .slideshow file
+    ./slideshow myslides.slideshow
+
+### As an executable
     
 `slideshow.py` can also be placed in your `$PATH` and run standalone:
 
     slideshow.py <image_dir>
+
+I symlink it as `slideshow` for convenience.
+
+### Image list in `.slideshow` file
+
+You can list image path names in a .slideshow file.  I recommend absolute path names, although relative pathnames to the `.slideshow` file, are recognized.
+
+You can also nest `.slideshow` files so `slides.slideshow` could contain:
+
+```
+slides01.slideshow
+slides02.slideshow
+```
+
+Which will load the slides from both `slides01.slideshow` and `slides02.slideshow` with:
+
+```
+./slideshow.py slides.slideshow
+```
 
 ### Keyboard controls
 
@@ -55,3 +83,5 @@ Python / OpenGL image slideshow
 No packaging, this is a standalone script, clone the repo and run as per usage above.
 
     git clone https://github.com/ocodo/slideshow 
+
+### 
