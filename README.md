@@ -7,6 +7,7 @@ Python / OpenGL image slideshow
 ###  Requirements
 
 - pyglet
+- pyperclip
 
 (Built with Python 3.11)
 
