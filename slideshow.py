@@ -34,7 +34,7 @@ Keyboard Controls:
   Esc,q - quit
   [, ] - change image delay time
   1-9 - change image delay time (number to seconds)
-  f - maximize window (fullscreen)
+  f - maximize window/reset image zoom/panning (fullscreen)
   r - random toggle
   k - Ken Burns effect toggle
   i - Copy image filename to clipboard
@@ -43,6 +43,7 @@ Keyboard Controls:
 
 Mouse Controls:
   Scroll - zoom in/out
+  Drag - pan
   Left click - move between images (click on left or right side)
   Right click
     left side (1/3) - random/ordered
