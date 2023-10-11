@@ -679,7 +679,7 @@ if __name__ == '__main__':
           x=10,
           y=10,
           anchor_x='left',
-          anchor_y='top'
+          anchor_y='bottom'
       )
 
       status_label_small = ShadowLabel(
@@ -687,7 +687,7 @@ if __name__ == '__main__':
           x=10,
           y=10,
           anchor_x='right',
-          anchor_y='top',
+          anchor_y='bottom',
           font_size=12
       )
 
