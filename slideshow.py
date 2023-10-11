@@ -4,6 +4,9 @@
 # Licenced under GPL v3 see LICENSE
 # See README.md for more info
 
+SLIDESHOW_EXTENSION = '.slideshow'
+IMAGE_EXTENSIONS = ('jpg', 'jpeg', 'png', 'gif', 'bmp', 'dds', 'exif', 'jp2', 'jpx', 'pcx', 'pnm', 'ras', 'tga', 'tif', 'tiff', 'xbm', 'xpm')
+
 help_osd = """
 Slideshow Controls (v2.0)
 
@@ -21,14 +24,18 @@ Right click window 3rds - Toggle Random // Toggle Pause // Toggle Ken Burns
 Scroll - Zoom
 """
 
-help_usage = """
-Slideshow will look for valid jpg, jpeg, png & gif image filenames in stdin,
+help_usage = f"""
+Slideshow will look for valid image filenames in stdin,
 or from a directory and display them.
 
 Usage:
+    slideshow [filename.slideshow]
+or
     slideshow [directory]
 or
     slideshow < list_of_filenames_via_stdin
+or
+    image_filenames_pipe_source | slideshow
 
 Keyboard Controls:
   Esc,q - quit
@@ -49,6 +56,10 @@ Mouse Controls:
     left side (1/3) - random/ordered
     middle (1/3) - pause/resume
     right side (1/3) - Ken Burns effect toggle
+
+Slideshow recognizes these image file extensions:
+
+{IMAGE_EXTENSIONS}
 
 """
 import os
@@ -147,9 +158,6 @@ class ShadowLabel:
     def draw(self):
         self.shadow_label.draw()
         self.main_label.draw()
-
-SLIDESHOW_EXTENSION = '.slideshow'
-IMAGE_EXTENSIONS = ('jpg', 'jpeg', 'png', 'gif', 'bmp', 'dds', 'exif', 'jp2', 'jpx', 'pcx', 'pnm', 'ras', 'tga', 'tif', 'tiff', 'xbm', 'xpm')
 
 image_paths = []
 saved_image_paths = []
@@ -361,7 +369,6 @@ def get_image_paths(input_list):
             path = os.path.abspath(f)
             paths.append(path)
 
-    paths.sort(key=str.lower)
     return paths
 
 def get_image_paths_from_directory(input_dir='.'):
@@ -532,7 +539,7 @@ def on_key_release(symbol, modifiers):
         toggle_ken_burns()
 
     elif key.I == symbol:
-        osd(f"Filename copied to clipboard...")
+        osd(f"{image_filename} [to clipboard]")
         pyperclip.copy(image_filename)
 
     elif key.LEFT == symbol:
@@ -542,19 +549,19 @@ def on_key_release(symbol, modifiers):
         nav_next()
 
     elif key.O == symbol:
-        osd(f"Sort by oldest first...")
+        osd("Sort created asc")
         sort_image_paths_by_date_created(reverse=False)
 
     elif key.N == symbol:
-        osd(f"Sort by newest first...")
+        osd("Sort created desc")
         sort_image_paths_by_date_created(reverse=True)
 
     elif key.A == symbol:
-        osd(f"Sort alphabetically...")
+        osd("sort alpha asc")
         sort_image_paths_by_alpha(reverse=False)
 
     elif key.Z == symbol:
-        osd(f"Sort reverse alphabetically...")
+        osd("sort alpha desc")
         sort_image_paths_by_alpha(reverse=True)
 
     elif key.SLASH == symbol:
@@ -596,11 +603,7 @@ def on_mouse_release(x, y, button, modifiers):
 
 @window.event
 def on_mouse_scroll(x, y, scroll_x, scroll_y):
-    global slide, drag_pan
-
-    if drag_pan:
-        drag_pan = False
-        return
+    global slide
 
     # Calculate the zoom factor based on scroll direction
     zoom_factor = 0.98 if scroll_y < 0 else 1.01
@@ -676,7 +679,7 @@ if __name__ == '__main__':
           x=10,
           y=10,
           anchor_x='left',
-          anchor_y='bottom'
+          anchor_y='top'
       )
 
       status_label_small = ShadowLabel(
@@ -684,7 +687,7 @@ if __name__ == '__main__':
           x=10,
           y=10,
           anchor_x='right',
-          anchor_y='bottom',
+          anchor_y='top',
           font_size=12
       )
 
