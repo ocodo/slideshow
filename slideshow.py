@@ -4,6 +4,12 @@
 # Licenced under GPL v3 see LICENSE
 # See README.md for more info
 
+import os
+import sys
+import random
+import pyglet
+import pyperclip
+
 SLIDESHOW_EXTENSION = '.slideshow'
 IMAGE_EXTENSIONS = ('jpg', 'jpeg', 'png', 'gif', 'bmp', 'dds', 'exif', 'jp2', 'jpx', 'pcx', 'pnm', 'ras', 'tga', 'tif', 'tiff', 'xbm', 'xpm')
 
@@ -62,14 +68,6 @@ Slideshow recognizes these image file extensions:
 {IMAGE_EXTENSIONS}
 
 """
-import os
-import sys
-import argparse
-import random
-import pyglet
-import pyperclip
-
-import pyglet
 
 class ShadowLabel:
     def __init__(self, text, x, y, font_name='Arial', font_size=14,
