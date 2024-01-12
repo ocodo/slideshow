@@ -641,71 +641,80 @@ def on_mouse_motion(x, y, dx, dy):
 def on_resize(width,height):
     setup_slide()
 
+
+
 if __name__ == '__main__':
-    args_dir = None
-    if len(sys.argv) > 1:
-        args_dir = sys.argv[1]
+    try:
+        args_dir = None
+        if len(sys.argv) > 1:
+            args_dir = sys.argv[1]
 
-    if args_dir and args_dir == '-h' or args_dir == '--help;':
-        print(help_usage, file=sys.stderr)
-        exit(0)
+        if args_dir and args_dir == '-h' or args_dir == '--help;':
+            print(help_usage, file=sys.stderr)
+            exit(0)
 
-    if args_dir:
-        if os.path.isdir(args_dir):
-            image_paths = get_image_paths_from_directory(args_dir)
-        elif os.path.isfile(args_dir):
-            image_paths = get_image_paths_from_file(args_dir)
-    else:
-        image_paths = get_image_paths_from_stdin()
+        if args_dir:
+            if os.path.isdir(args_dir):
+                image_paths = get_image_paths_from_directory(args_dir)
+            elif os.path.isfile(args_dir):
+                image_paths = get_image_paths_from_file(args_dir)
+        else:
+            image_paths = get_image_paths_from_stdin()
 
-    if len(image_paths) < 1:
-      print(f"No images found in source", file=sys.stderr)
-      exit(1)
-    else:
-      saved_image_paths = image_paths.copy()
-      image_filename = image_paths[image_index]
-      img = load_image(image_filename)
+        if len(image_paths) < 1:
+          print(f"No images found in source", file=sys.stderr)
+          exit(1)
+        else:
+          saved_image_paths = image_paths.copy()
+          image_filename = image_paths[image_index]
+          img = load_image(image_filename)
 
-      slide = pyglet.sprite.Sprite(img)
+          slide = pyglet.sprite.Sprite(img)
 
-      background_bar = pyglet.shapes.Rectangle(0, 0, window.width, progress_bar_height, color=(50,50,50))
-      progress_bar = pyglet.shapes.Rectangle(0, 0, 0, progress_bar_height, color=(255, 255, 255))
-      hide_progress_bar()
+          background_bar = pyglet.shapes.Rectangle(0, 0, window.width, progress_bar_height, color=(50,50,50))
+          progress_bar = pyglet.shapes.Rectangle(0, 0, 0, progress_bar_height, color=(255, 255, 255))
+          hide_progress_bar()
 
-      status_label = ShadowLabel(
-          '',
-          x=10,
-          y=10,
-          anchor_x='left',
-          anchor_y='bottom'
-      )
+          status_label = ShadowLabel(
+              '',
+              x=10,
+              y=10,
+              anchor_x='left',
+              anchor_y='bottom'
+          )
 
-      status_label_small = ShadowLabel(
-          '',
-          x=10,
-          y=10,
-          anchor_x='right',
-          anchor_y='bottom',
-          font_size=12
-      )
+          status_label_small = ShadowLabel(
+              '',
+              x=10,
+              y=10,
+              anchor_x='right',
+              anchor_y='bottom',
+              font_size=12
+          )
 
-      banner_label = ShadowLabel(
-          "",
-          10,
-          10,
-          anchor_x='center',
-          anchor_y='center',
-          font_size=15,
-          font_name="Monaco",
-          width=window.width,
-          multiline=True
-      )
+          banner_label = ShadowLabel(
+              "",
+              10,
+              10,
+              anchor_x='center',
+              anchor_y='center',
+              font_size=15,
+              font_name="Monaco",
+              width=window.width,
+              multiline=True
+          )
 
-      setup_slide()
+          setup_slide()
 
-      pyglet.clock.schedule_interval(update_image, update_interval_seconds)
-      pyglet.clock.schedule_interval(update_pan, 1/60.0)
-      pyglet.clock.schedule_interval(update_zoom, 1/60.0)
-      pyglet.clock.schedule_once(hide_mouse, mouse_hide_delay)
+          pyglet.clock.schedule_interval(update_image, update_interval_seconds)
+          pyglet.clock.schedule_interval(update_pan, 1/60.0)
+          pyglet.clock.schedule_interval(update_zoom, 1/60.0)
+          pyglet.clock.schedule_once(hide_mouse, mouse_hide_delay)
 
-      pyglet.app.run()
+          pyglet.app.run()
+
+    except Exception as e:
+        print("There was an error")
+        print(e)
+
+        quit()
