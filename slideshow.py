@@ -167,10 +167,10 @@ slide = None
 status_label = None
 status_label_small = None
 
-osd_banner_delay = 4
-status_label_hide_delay = 2
+osd_banner_delay = 5
+status_label_hide_delay = 1
 update_interval_seconds = 6.0
-mouse_hide_delay = 4.0
+mouse_hide_delay = 1
 
 pan_speed_slowest = 20
 pan_speed_fastest = 40
@@ -403,6 +403,11 @@ def sort_image_paths_by_alpha(reverse=False):
     global image_index, image_paths
     image_paths.sort(key=str.lower, reverse=reverse)
     image_index = image_paths.index(image_filename)
+    
+def goto_start():
+    global image_index, image_filename, img
+    image_index = -1
+    nav_next()
 
 def is_landscape(width, height):
     return width > height
@@ -522,6 +527,7 @@ def on_key_release(symbol, modifiers):
     key = pyglet.window.key
 
     if key.Q == symbol or key.ESCAPE == symbol:
+        window.close()
         pyglet.app.exit()
 
     elif key.SPACE == symbol:
@@ -545,6 +551,9 @@ def on_key_release(symbol, modifiers):
 
     elif key.RIGHT == symbol:
         nav_next()
+        
+    elif key.S == symbol:
+        goto_start()
 
     elif key.O == symbol:
         osd("Sort created asc")
@@ -641,17 +650,17 @@ def on_mouse_motion(x, y, dx, dy):
 def on_resize(width,height):
     setup_slide()
 
-
-
 if __name__ == '__main__':
     try:
         args_dir = None
         if len(sys.argv) > 1:
             args_dir = sys.argv[1]
 
+
         if args_dir and args_dir == '-h' or args_dir == '--help;':
             print(help_usage, file=sys.stderr)
             exit(0)
+
 
         if args_dir:
             if os.path.isdir(args_dir):
