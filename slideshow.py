@@ -528,7 +528,7 @@ def on_key_release(symbol, modifiers):
 
     if key.Q == symbol or key.ESCAPE == symbol:
         window.close()
-        pyglet.app.exit()
+        sys.exit()
 
     elif key.SPACE == symbol:
         toggle_pause()
@@ -659,7 +659,7 @@ if __name__ == '__main__':
 
         if args_dir and args_dir == '-h' or args_dir == '--help;':
             print(help_usage, file=sys.stderr)
-            exit(0)
+            sys.exit(0)
 
 
         if args_dir:
@@ -672,7 +672,7 @@ if __name__ == '__main__':
 
         if len(image_paths) < 1:
           print(f"No images found in source", file=sys.stderr)
-          exit(1)
+          sys.exit(1)
         else:
           saved_image_paths = image_paths.copy()
           image_filename = image_paths[image_index]
@@ -726,4 +726,4 @@ if __name__ == '__main__':
         print("There was an error")
         print(e)
 
-        quit()
+        sys.exit()
