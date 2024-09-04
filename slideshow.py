@@ -464,9 +464,9 @@ def toggle_ken_burns():
     global ken_burns
     ken_burns = not ken_burns
     if ken_burns:
-        osd(f"Ken Burns Effect: On")
+        osd("Ken Burns Effect: On")
     else:
-        osd(f"Ken Burns Effect: Off")
+        osd("Ken Burns Effect: Off")
 
 def toggle_pause():
     global paused
@@ -482,11 +482,11 @@ def toggle_random_image():
     if random_image:
         random.shuffle(image_paths)  # Shuffle the original list for random mode
         image_index = 0  # Reset image index to start from the beginning
-        osd(f"Random")
+        osd("Random")
     else:
         image_paths = saved_image_paths.copy()  # Use sequential list
         image_index = saved_image_paths.index(image_filename)  # Restore the original index
-        osd(f"Sequence")
+        osd("Sequence")
 
 def resize_window_to_screen():
     screen = window.display.get_default_screen()
@@ -671,7 +671,7 @@ if __name__ == '__main__':
             image_paths = get_image_paths_from_stdin()
 
         if len(image_paths) < 1:
-          print(f"No images found in source", file=sys.stderr)
+          print("No images found in source", file=sys.stderr)
           sys.exit(1)
         else:
           saved_image_paths = image_paths.copy()
