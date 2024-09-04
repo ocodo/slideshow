@@ -525,6 +525,22 @@ def toggle_random_image():
         osd("Sequence")
 
 
+def toggle_fullscreen():
+    screen = window.display.get_default_screen()
+    if window.fullscreen:
+        window.set_fullscreen(
+            fullscreen=False,
+            width=screen.width - 100,
+            height=screen.height - 100,
+        )
+    else:
+        window.set_fullscreen(
+            fullscreen=True,
+            width=screen.width,
+            height=screen.height + 32,
+        )
+
+
 def resize_window_to_screen():
     screen = window.display.get_default_screen()
     width = screen.width
@@ -578,7 +594,7 @@ def on_key_release(symbol, modifiers):
         toggle_random_image()
 
     elif key.F == symbol:
-        resize_window_to_screen()
+        toggle_fullscreen()
 
     elif key.K == symbol:
         toggle_ken_burns()
