@@ -183,7 +183,7 @@ status_label_hide_delay = 1
 status_label_small = None
 update_interval_seconds = 6.0
 window = pyglet.window.Window(resizable=True)
-zoom_speed = 0
+zoom_speed = 0.002
 
 
 def osd_banner(message, delay=osd_banner_delay):
@@ -195,10 +195,12 @@ def osd_banner(message, delay=osd_banner_delay):
 
     pyglet.clock.schedule_once(hide_osd_banner, delay)
 
+
 def osd(message, delay=status_label_hide_delay):
     pyglet.clock.unschedule(hide_status_message)
     status_label.show(message)
     pyglet.clock.schedule_once(hide_status_message, delay)
+
 
 def osd_small(message, delay=status_label_hide_delay):
     pyglet.clock.unschedule(hide_small_status_message)
@@ -206,20 +208,26 @@ def osd_small(message, delay=status_label_hide_delay):
     status_label_small.show(message)
     pyglet.clock.schedule_once(hide_small_status_message, delay)
 
+
 def is_gif_animation(image):
     return isinstance(image, pyglet.image.Animation)
+
 
 def hide_small_status_message(dt):
     status_label_small.hide()
 
+
 def hide_status_message(dt):
     status_label.hide()
+
 
 def hide_osd_banner(dt):
     banner_label.hide()
 
+
 def coin_toss():
     return random.randint(0,100) > 50
+
 
 def randomize_pan_zoom_speeds(image):
     global pan_speed_x, pan_speed_y, zoom_speed
@@ -235,7 +243,7 @@ def randomize_pan_zoom_speeds(image):
         if coin_toss():
             pan_speed_y = -pan_speed_y
 
-    zoom_speed = random.uniform(-0.01,-0.001)
+    zoom_speed = random.uniform(-0.003,-0.001)
 
 
 def update_pan(dt):
@@ -316,9 +324,7 @@ def previous_image():
     image_filename = image_paths[image_index]
     img = load_image(image_filename)
     slide.image = img
-
     setup_slide()
-
     window.clear()
 
 
@@ -341,7 +347,6 @@ def update_image(dt):
     slide.image = img
     reset_clock(False)
     setup_slide()
-
     window.clear()
 
 
