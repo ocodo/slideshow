@@ -69,6 +69,7 @@ Slideshow recognizes these image file extensions:
 
 """
 
+
 class ShadowLabel:
     def __init__(self, text, x, y, font_name='Arial', font_size=14,
                  opacity=255, color=(255,255,255,255), shadow_color=(0,0,0,127),
@@ -157,36 +158,33 @@ class ShadowLabel:
         self.shadow_label.draw()
         self.main_label.draw()
 
-image_paths = []
-saved_image_paths = []
 
+drag_pan = False # on during pan and off at the next mouse
 image_filename = ""
 image_index = 0
+image_paths = []
 img = None
-slide = None
-status_label = None
-status_label_small = None
-
-osd_banner_delay = 5
-status_label_hide_delay = 1
-update_interval_seconds = 6.0
+ken_burns = True
 mouse_hide_delay = 1
-
-pan_speed_slowest = 20
-pan_speed_fastest = 40
+osd_banner_delay = 5
 pan_speed_alt_axis = 3
+pan_speed_fastest = 40
+pan_speed_slowest = 20
 pan_speed_x = 10
 pan_speed_y = 10
-zoom_speed = 0
+paused = False
 progress = 0
 progress_bar_height = 2
-
-ken_burns = True
-paused = False
 random_image = False
-drag_pan = False # on during pan and off at the next mouse
+saved_image_paths = []
+slide = None
+status_label = None
+status_label_hide_delay = 1
+status_label_small = None
+update_interval_seconds = 6.0
+window = pyglet.window.Window(resizable=True)
+zoom_speed = 0
 
-window = pyglet.window.Window(resizable=True,style='borderless')
 
 def osd_banner(message, delay=osd_banner_delay):
     pyglet.clock.unschedule(hide_osd_banner)
@@ -239,14 +237,17 @@ def randomize_pan_zoom_speeds(image):
 
     zoom_speed = random.uniform(-0.01,-0.001)
 
+
 def update_pan(dt):
     if ken_burns:
         slide.x += dt * pan_speed_x
         slide.y += dt * pan_speed_y
 
+
 def update_zoom(dt):
     if ken_burns:
         slide.scale -= dt * zoom_speed
+
 
 def load_image(filename):
     if filename.endswith('gif'):
@@ -254,9 +255,11 @@ def load_image(filename):
     else:
         return pyglet.image.load(filename)
 
+
 def center_slide():
     slide.x = (window.width - slide.width) / 2
     slide.y = (window.height - slide.height) / 2
+
 
 def setup_slide():
     width, height = get_width_height(img)
@@ -281,6 +284,7 @@ def setup_slide():
         slide.x = (window.width - slide.width) / 2
         slide.y = (window.height - slide.height) / 2
 
+
 def nav_next():
     if len(image_paths) > 0:
         if not paused:
@@ -290,6 +294,7 @@ def nav_next():
         else:
             update_image(0)
 
+
 def nav_prevous():
     if len(image_paths) > 0:
         if not paused:
@@ -298,6 +303,7 @@ def nav_prevous():
             resume()
         else:
             previous_image()
+
 
 def previous_image():
     global random_image, image_index, image_filename, img
@@ -315,6 +321,7 @@ def previous_image():
 
     window.clear()
 
+
 def next_image():
     global image_index, image_filename, img
 
@@ -327,6 +334,7 @@ def next_image():
     img = load_image(image_filename)
     return img
 
+
 def update_image(dt):
     global img
     img = next_image()
@@ -336,18 +344,22 @@ def update_image(dt):
 
     window.clear()
 
+
 def hide_mouse(dt):
     window.set_mouse_visible(visible=False)
     hide_progress_bar()
+
 
 def hide_progress_bar():
     progress_bar.opacity = 0
     background_bar.opacity = 0
 
+
 def show_progress_bar():
     progress_bar.opacity = 255
     background_bar.width = window.width
     background_bar.opacity = 255
+
 
 def get_valid_image_path(base_dir, input_path):
     # Check if the path is an absolute path
@@ -356,6 +368,7 @@ def get_valid_image_path(base_dir, input_path):
 
     # If not, treat it as a relative path to the containing file location
     return os.path.abspath(os.path.join(base_dir, input_path))
+
 
 def get_image_paths(input_list):
     paths = []
@@ -369,19 +382,23 @@ def get_image_paths(input_list):
 
     return paths
 
+
 def get_image_paths_from_directory(input_dir='.'):
     file_list = os.listdir(input_dir)
     file_paths = [os.path.join(input_dir, f) for f in file_list]
     return get_image_paths(file_paths)
+
 
 def get_image_paths_from_stdin():
     file_list = sys.stdin.readlines()
     base_dir = os.getcwd()  # Get the current working directory
 
     # Validate and convert paths to full paths if necessary
-    image_paths = [get_valid_image_path(base_dir, path.strip()) for path in file_list]
+    image_paths = [get_valid_image_path(base_dir, path.strip())
+                   for path in file_list]
 
     return get_image_paths(image_paths)
+
 
 def get_image_paths_from_file(file_path):
     with open(file_path, 'r') as file:
@@ -394,36 +411,44 @@ def get_image_paths_from_file(file_path):
 
     return get_image_paths(image_paths)
 
+
 def sort_image_paths_by_date_created(reverse=False):
     global image_index, image_paths
     image_paths.sort(key=lambda x: os.path.getctime(x), reverse=reverse)
     image_index = image_paths.index(image_filename)
 
+
 def sort_image_paths_by_alpha(reverse=False):
     global image_index, image_paths
     image_paths.sort(key=str.lower, reverse=reverse)
     image_index = image_paths.index(image_filename)
-    
+
+
 def goto_start():
     global image_index, image_filename, img
     image_index = -1
     nav_next()
 
+
 def is_landscape(width, height):
     return width > height
+
 
 def is_larger(width, height, window):
     return width > window.width and height > window.height
 
+
 def get_oversize_scale(window, image):
     scale = get_fit_scale(window, image)
     return scale * 1.2
+
 
 def get_width_height(image):
     if is_gif_animation(image):
         return (image.get_max_width(), image.get_max_height())
     else:
         return (image.width, image.height)
+
 
 def get_fit_scale(window, image):
     image_width, image_height = get_width_height(image)
@@ -442,6 +467,7 @@ def get_fit_scale(window, image):
 
     return scale
 
+
 def reset_clock(show_message=True):
     if show_message:
         osd(f"Interval: {update_interval_seconds:.2f}")
@@ -450,15 +476,18 @@ def reset_clock(show_message=True):
         pyglet.clock.unschedule(update_image)
         pyglet.clock.schedule_interval(update_image, update_interval_seconds)
 
+
 def pause(osd_message=False):
     if osd_message:
         osd("Paused")
     pyglet.clock.unschedule(update_image)
 
+
 def resume(osd_message=False):
     if osd_message:
         osd("Resume")
     pyglet.clock.schedule_interval(update_image, update_interval_seconds)
+
 
 def toggle_ken_burns():
     global ken_burns
@@ -468,6 +497,7 @@ def toggle_ken_burns():
     else:
         osd("Ken Burns Effect: Off")
 
+
 def toggle_pause():
     global paused
     paused = not paused
@@ -475,6 +505,7 @@ def toggle_pause():
         pause(True)
     else:
         resume(True)
+
 
 def toggle_random_image():
     global random_image, image_paths, image_index
@@ -488,6 +519,7 @@ def toggle_random_image():
         image_index = saved_image_paths.index(image_filename)  # Restore the original index
         osd("Sequence")
 
+
 def resize_window_to_screen():
     screen = window.display.get_default_screen()
     width = screen.width
@@ -497,16 +529,19 @@ def resize_window_to_screen():
     window.width = width
     window.height = height
 
+
 def progress_bar_draw():
     progress_bar.width = window.width * ((image_index + 1) / len(image_paths))
     background_bar.draw()
     progress_bar.draw()
+
 
 def draw_rect(x, y, width, height, stroke_width=2, color=(0,0,0)):
     pyglet.shapes.Line(x, y, x + width, y, width=stroke_width, color=color).draw()
     pyglet.shapes.Line(x + width, y, x + width, y + height, width=stroke_width, color=color).draw()
     pyglet.shapes.Line(x + width, y + height, x, y + height, width=stroke_width, color=color).draw()
     pyglet.shapes.Line(x, y + height, x, y, width=stroke_width, color=color).draw()
+
 
 @window.event
 def on_draw():
@@ -520,6 +555,7 @@ def on_draw():
 
     if len(image_paths) > 0:
         progress_bar_draw()
+
 
 @window.event
 def on_key_release(symbol, modifiers):
@@ -586,6 +622,7 @@ def on_key_release(symbol, modifiers):
         update_interval_seconds = float(symbol - 48) * 2
         reset_clock()
 
+
 @window.event
 def on_mouse_release(x, y, button, modifiers):
     global drag_pan
@@ -608,6 +645,7 @@ def on_mouse_release(x, y, button, modifiers):
         else:
             toggle_pause()
 
+
 @window.event
 def on_mouse_scroll(x, y, scroll_x, scroll_y):
     global slide
@@ -629,6 +667,7 @@ def on_mouse_scroll(x, y, scroll_x, scroll_y):
     # Redraw the image
     window.clear()
 
+
 @window.event
 def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
     global slide, drag_pan
@@ -639,6 +678,7 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
     # Redraw the image
     window.clear()
 
+
 @window.event
 def on_mouse_motion(x, y, dx, dy):
     window.set_mouse_visible(visible=True)
@@ -646,9 +686,11 @@ def on_mouse_motion(x, y, dx, dy):
     pyglet.clock.unschedule(hide_mouse)
     pyglet.clock.schedule_once(hide_mouse, mouse_hide_delay)
 
+
 @window.event
 def on_resize(width,height):
     setup_slide()
+
 
 if __name__ == '__main__':
     try:
@@ -656,11 +698,9 @@ if __name__ == '__main__':
         if len(sys.argv) > 1:
             args_dir = sys.argv[1]
 
-
         if args_dir and args_dir == '-h' or args_dir == '--help;':
             print(help_usage, file=sys.stderr)
             sys.exit(0)
-
 
         if args_dir:
             if os.path.isdir(args_dir):
@@ -671,56 +711,55 @@ if __name__ == '__main__':
             image_paths = get_image_paths_from_stdin()
 
         if len(image_paths) < 1:
-          print("No images found in source", file=sys.stderr)
-          sys.exit(1)
+            print("No images found in source", file=sys.stderr)
+            sys.exit(1)
         else:
-          saved_image_paths = image_paths.copy()
-          image_filename = image_paths[image_index]
-          img = load_image(image_filename)
+            saved_image_paths = image_paths.copy()
+            image_filename = image_paths[image_index]
+            img = load_image(image_filename)
+            slide = pyglet.sprite.Sprite(img)
+            background_bar = pyglet.shapes.Rectangle(0, 0, window.width, progress_bar_height, color=(50,50,50))
+            progress_bar = pyglet.shapes.Rectangle(0, 0, 0, progress_bar_height, color=(255, 255, 255))
 
-          slide = pyglet.sprite.Sprite(img)
+            hide_progress_bar()
 
-          background_bar = pyglet.shapes.Rectangle(0, 0, window.width, progress_bar_height, color=(50,50,50))
-          progress_bar = pyglet.shapes.Rectangle(0, 0, 0, progress_bar_height, color=(255, 255, 255))
-          hide_progress_bar()
+            status_label = ShadowLabel(
+                '',
+                x=10,
+                y=10,
+                anchor_x='left',
+                anchor_y='bottom'
+            )
 
-          status_label = ShadowLabel(
-              '',
-              x=10,
-              y=10,
-              anchor_x='left',
-              anchor_y='bottom'
-          )
+            status_label_small = ShadowLabel(
+                '',
+                x=10,
+                y=10,
+                anchor_x='right',
+                anchor_y='bottom',
+                font_size=12
+            )
 
-          status_label_small = ShadowLabel(
-              '',
-              x=10,
-              y=10,
-              anchor_x='right',
-              anchor_y='bottom',
-              font_size=12
-          )
+            banner_label = ShadowLabel(
+                "",
+                10,
+                10,
+                anchor_x='center',
+                anchor_y='center',
+                font_size=15,
+                font_name="Monaco",
+                width=window.width,
+                multiline=True
+            )
 
-          banner_label = ShadowLabel(
-              "",
-              10,
-              10,
-              anchor_x='center',
-              anchor_y='center',
-              font_size=15,
-              font_name="Monaco",
-              width=window.width,
-              multiline=True
-          )
+            setup_slide()
 
-          setup_slide()
+            pyglet.clock.schedule_interval(update_image, update_interval_seconds)
+            pyglet.clock.schedule_interval(update_pan, 1/60.0)
+            pyglet.clock.schedule_interval(update_zoom, 1/60.0)
+            pyglet.clock.schedule_once(hide_mouse, mouse_hide_delay)
 
-          pyglet.clock.schedule_interval(update_image, update_interval_seconds)
-          pyglet.clock.schedule_interval(update_pan, 1/60.0)
-          pyglet.clock.schedule_interval(update_zoom, 1/60.0)
-          pyglet.clock.schedule_once(hide_mouse, mouse_hide_delay)
-
-          pyglet.app.run()
+            pyglet.app.run()
 
     except Exception as e:
         print("There was an error")
