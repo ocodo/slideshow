@@ -182,8 +182,8 @@ status_label = None
 status_label_hide_delay = 1
 status_label_small = None
 update_interval_seconds = 6.0
-window = pyglet.window.Window(resizable=True)
-zoom_speed = 0.002
+window = pyglet.window.Window(resizable=True, style="borderless")
+zoom_speed = 0.0014
 
 
 def osd_banner(message, delay=osd_banner_delay):
@@ -715,19 +715,19 @@ def on_resize(width,height):
 
 if __name__ == '__main__':
     try:
-        args_dir = None
+        args = None
         if len(sys.argv) > 1:
-            args_dir = sys.argv[1]
+            args = sys.argv[1]
 
-        if args_dir and args_dir == '-h' or args_dir == '--help;':
+        if args and args == '-h' or args == '--help;':
             print(help_usage, file=sys.stderr)
             sys.exit(0)
 
-        if args_dir:
-            if os.path.isdir(args_dir):
-                image_paths = get_image_paths_from_directory(args_dir)
-            elif os.path.isfile(args_dir):
-                image_paths = get_image_paths_from_file(args_dir)
+        if args:
+            if os.path.isdir(args):
+                image_paths = get_image_paths_from_directory(args)
+            elif os.path.isfile(args):
+                image_paths = get_image_paths_from_file(args)
         else:
             image_paths = get_image_paths_from_stdin()
 
